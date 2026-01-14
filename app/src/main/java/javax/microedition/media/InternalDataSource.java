@@ -20,12 +20,6 @@ package javax.microedition.media;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.arthenica.mobileffmpeg.Config;
-import com.arthenica.mobileffmpeg.FFmpeg;
-import com.arthenica.mobileffmpeg.FFprobe;
-import com.arthenica.mobileffmpeg.MediaInformation;
-import com.arthenica.mobileffmpeg.StreamInformation;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,118 +30,119 @@ import javax.microedition.media.protocol.SourceStream;
 import javax.microedition.util.ContextHolder;
 
 public class InternalDataSource extends DataSource {
-	private static final String TAG = InternalDataSource.class.getName();
+    private static final String TAG = InternalDataSource.class.getName();
 
-	private File mediaFile;
-	private String type;
+    private File mediaFile;
+    private final String type;
 
-	public InternalDataSource(InputStream stream, String type) throws IllegalArgumentException, IOException {
-		super(null);
+    public InternalDataSource(InputStream stream, String type) throws IllegalArgumentException, IOException {
+        super(null);
 
-		String extension = "." + MimeTypeMap.getSingleton().getExtensionFromMimeType(type);
-		this.mediaFile = File.createTempFile("media", extension, ContextHolder.getCacheDir());
-		this.type = type;
+        String extension = "." + MimeTypeMap.getSingleton().getExtensionFromMimeType(type);
+        this.mediaFile = File.createTempFile("media", extension, ContextHolder.getCacheDir());
+        this.type = type;
 
-		final RandomAccessFile raf = new RandomAccessFile(mediaFile, "rw");
+        final RandomAccessFile raf = new RandomAccessFile(mediaFile, "rw");
 
-		final String name = mediaFile.getName();
-		Log.d(TAG, "Starting media pipe: " + name);
+        final String name = mediaFile.getName();
+        Log.d(TAG, "Starting media pipe: " + name);
 
-		int length = stream.available();
-		if (length >= 0) {
-			raf.setLength(length);
-			Log.d(TAG, "Changing file size to " + length + " bytes: " + name);
-		}
+        int length = stream.available();
+        if (length >= 0) {
+            raf.setLength(length);
+            Log.d(TAG, "Changing file size to " + length + " bytes: " + name);
+        }
 
-		byte[] buf = new byte[0x10000];
-		int read;
-		try {
-			while (true) {
-				read = stream.read(buf);
-				if (read > 0) {
-					raf.write(buf, 0, read);
-				} else if (read < 0) {
-					break;
-				}
-			}
-			raf.close();
-			Log.d(TAG, "Media pipe closed: " + name);
-		} catch (IOException e) {
-			Log.d(TAG, "Media pipe failure: " + e.toString());
-		} finally {
-			stream.close();
-		}
+        byte[] buf = new byte[0x10000];
+        int read;
+        try {
+            while (true) {
+                read = stream.read(buf);
+                if (read > 0) {
+                    raf.write(buf, 0, read);
+                } else if (read < 0) {
+                    break;
+                }
+            }
+            raf.close();
+            Log.d(TAG, "Media pipe closed: " + name);
+        } catch (IOException e) {
+            Log.d(TAG, "Media pipe failure: " + e);
+        } finally {
+            stream.close();
+        }
 
-		try {
-			convert();
-		} catch (Throwable e) {
-			// Thrown on fake Oppo devices
-			e.printStackTrace();
-		}
-	}
+        try {
+            convert();
+        } catch (Throwable e) {
+            // Thrown on fake Oppo devices
+            e.printStackTrace();
+        }
+    }
 
-	private void convert() {
-		MediaInformation mediaInformation = FFprobe.getMediaInformation(mediaFile.getPath());
-		if (mediaInformation != null) {
-			StreamInformation streamInformation = mediaInformation.getStreams().get(0);
-			if (streamInformation.getCodec().contains("adpcm")) {
-				String newName = mediaFile.getPath() + ".wav";
-				String cmd = "-i " + mediaFile.getPath() + " -acodec pcm_u8 -ar 16000 " + newName;
-				int rc = FFmpeg.execute(cmd);
-				if (rc == Config.RETURN_CODE_SUCCESS) {
-					Log.i(TAG, "Command execution completed successfully.");
-					mediaFile.delete();
-					mediaFile = new File(newName);
-				} else {
-					Log.i(TAG, String.format(
-							"Command execution failed with rc=%d and the output below.", rc));
-				}
-			}
-		}
-	}
+    private void convert() {
+        try {
+            // 先尝试使用原生API转换
+            File wavFile = new File(mediaFile.getAbsolutePath() + ".wav");
+            boolean converted = AudioConverterNative.convertToWavIfNeeded(mediaFile, wavFile);
 
-	@Override
-	public String getLocator() {
-		return mediaFile.getAbsolutePath();
-	}
+            if (converted) {
+                Log.i(TAG, "Native conversion successful");
+                mediaFile.delete();
+                mediaFile = wavFile;
+            } else {
+                Log.i(TAG, "Native conversion not needed or not supported");
 
-	@Override
-	public String getContentType() {
-		return type;
-	}
+                // 可以使用其他方式转换
+            }
+        } catch (Throwable e) {
+            Log.e(TAG, "Audio conversion error", e);
+            // 转换失败，保持原文件
+        }
+    }
 
-	@Override
-	public void connect() throws IOException {
-	}
+    @Override
+    public String getLocator() {
+        return mediaFile.getAbsolutePath();
+    }
 
-	@Override
-	public void disconnect() {
-		if (mediaFile.delete()) {
-			Log.d(TAG, "Temp file deleted: " + mediaFile.getAbsolutePath());
-		}
-	}
+    @Override
+    public String getContentType() {
+        return type;
+    }
 
-	@Override
-	public void start() throws IOException {
-	}
+    @Override
+    public void connect() throws IOException {
+    }
 
-	@Override
-	public void stop() throws IOException {
-	}
+    @Override
+    public void disconnect() {
+        if (mediaFile.delete()) {
+            Log.d(TAG, "Temp file deleted: " + mediaFile.getAbsolutePath());
+        }
+    }
 
-	@Override
-	public SourceStream[] getStreams() {
-		return new SourceStream[0];
-	}
+    @Override
+    public void start() throws IOException {
+    }
 
-	@Override
-	public Control[] getControls() {
-		return new Control[0];
-	}
+    @Override
+    public void stop() throws IOException {
+    }
 
-	@Override
-	public Control getControl(String control) {
-		return null;
-	}
+    @Override
+    public SourceStream[] getStreams() {
+        return new SourceStream[0];
+    }
+
+    @Override
+    public Control[] getControls() {
+        return new Control[0];
+    }
+
+    @Override
+    public Control getControl(String control) {
+        return null;
+    }
 
 }
