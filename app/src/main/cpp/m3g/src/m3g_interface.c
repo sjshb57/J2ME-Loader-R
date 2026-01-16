@@ -480,8 +480,8 @@ static void *m3gAlloc(Interface *m3g, M3Gsize bytes)
 #endif    
 {
     void *ptr;
-    M3G_VALIDATE_INTERFACE(m3g);
-    M3G_ASSERT_NO_LOCK(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
+    M3G_ASSERT_NO_LOCK(m3g)
 
     /* Simulate memory allocation failures if enabled */
     
@@ -522,13 +522,13 @@ static void *m3gAlloc(Interface *m3g, M3Gsize bytes)
 
     /* Add instrumentation to the block */
     
-    M3G_ASSERT_ALIGNMENT(ptr);
+    M3G_ASSERT_ALIGNMENT(ptr)
     ptr = PAYLOAD_BLOCK(ptr);
 #   if defined(M3G_DEBUG_HEAP_TRACKING)
     insertBlock(ptr, &m3g->blockList);
     instrumentateBlock(ptr, bytes, file, line);
 #   else
-    instrumentateBlock(ptr, bytes);
+    instrumentateBlock(ptr, bytes)
 #   endif
     
     m3gIncStat(m3g, M3G_STAT_MEMORY_ALLOCS, 1);
@@ -548,8 +548,8 @@ static void *m3gAlloc(Interface *m3g, M3Gsize bytes)
              "Alloc 0x%08X, %d bytes (%s, line %d)\n",
              (unsigned) ptr, bytes, file, line);
 #   else
-    M3G_LOG2(M3G_LOG_MEMORY_BLOCKS, "Alloc 0x%08X, %d bytes\n",
-             (unsigned) ptr, bytes);
+    M3G_LOG2(M3G_LOG_MEMORY_BLOCKS, "Alloc 0x%08, %d bytes\n" PRIxPTR,
+             (uintptr_t) ptr, bytes);
 #   endif
     
     m3gUpdateMemoryPeakCounter(m3g);
@@ -597,13 +597,13 @@ static void m3gDebugFree(Interface *m3g, void *ptr, const char *file, int line)
 static void m3gFree(Interface *m3g, void *ptr)
 #endif
 {
-    M3G_VALIDATE_INTERFACE(m3g);
-    M3G_ASSERT_ALIGNMENT(ptr);
-    M3G_ASSERT_NO_LOCK(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
+    M3G_ASSERT_ALIGNMENT(ptr)
+    M3G_ASSERT_NO_LOCK(m3g)
     
     if (ptr != NULL) {
-        M3G_VALIDATE_MEMBLOCK(ptr);
-        M3G_ASSERT(!m3gIsObject(ptr));
+        M3G_VALIDATE_MEMBLOCK(ptr)
+        M3G_ASSERT(!m3gIsObject(ptr))
         
 #       if defined(M3G_DEBUG)
         m3g->mallocCount--;
@@ -639,10 +639,10 @@ static void m3gFree(Interface *m3g, void *ptr)
                      (unsigned) ptr, file, line);
 #           endif
 #       else
-        M3G_LOG1(M3G_LOG_MEMORY_BLOCKS, "Free 0x%08X\n", (unsigned) ptr);
+        M3G_LOG1(M3G_LOG_MEMORY_BLOCKS, "Free 0x%08\n" PRIxPTR, (uintptr_t) ptr);
 #       endif
     
-        destroyBlock(ptr);
+        destroyBlock(ptr)
         (*m3g->func.free)(PHYSICAL_BLOCK(ptr));
     }
 }
@@ -757,8 +757,8 @@ static M3GMemObject m3gAllocObject(Interface *m3g, M3Gsize bytes)
 #endif
 {
     M3GMemObject handle;
-    M3G_VALIDATE_INTERFACE(m3g);
-    M3G_ASSERT_NO_LOCK(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
+    M3G_ASSERT_NO_LOCK(m3g)
 
     /* Simulate memory allocation failures if enabled */
     
@@ -846,8 +846,8 @@ static void m3gDebugFreeObject(Interface *m3g, M3GMemObject handle, const char *
 static void m3gFreeObject(Interface *m3g, M3GMemObject handle)
 #endif
 {
-    M3G_VALIDATE_INTERFACE(m3g);
-    M3G_ASSERT_NO_LOCK(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
+    M3G_ASSERT_NO_LOCK(m3g)
 
     /* Debugging code */
     
@@ -908,9 +908,9 @@ static void m3gFreeObject(Interface *m3g, M3GMemObject handle)
  */
 static void *m3gAllocTemp(Interface *m3g, M3Gsizei bytes)
 {
-    M3G_VALIDATE_INTERFACE(m3g);
-    M3G_ASSERT_NO_LOCK(m3g);
-    M3G_ASSERT(!m3g->tempLocked);
+    M3G_VALIDATE_INTERFACE(m3g)
+    M3G_ASSERT_NO_LOCK(m3g)
+    M3G_ASSERT(!m3g->tempLocked)
 
     if (m3g->tempSize < bytes) {
         m3gFree(m3g, m3g->tempBuffer);
@@ -935,9 +935,9 @@ static void *m3gAllocTemp(Interface *m3g, M3Gsizei bytes)
  */
 static void m3gFreeTemp(Interface *m3g)
 {
-    M3G_VALIDATE_INTERFACE(m3g);
-    M3G_ASSERT_NO_LOCK(m3g);
-    M3G_ASSERT(m3g->tempLocked);
+    M3G_VALIDATE_INTERFACE(m3g)
+    M3G_ASSERT_NO_LOCK(m3g)
+    M3G_ASSERT(m3g->tempLocked)
     
     m3g->tempLocked = M3G_FALSE;
 }
@@ -948,8 +948,8 @@ static void m3gFreeTemp(Interface *m3g)
  */
 static void m3gAddChildObject(Interface *m3g, Object *obj)
 {
-    M3G_ASSERT(!m3g->shutdown);
-    M3G_ASSERT(m3gInRange(m3g->objCount, 0, 0x7FFFFFFF));
+    M3G_ASSERT(!m3g->shutdown)
+    M3G_ASSERT(m3gInRange(m3g->objCount, 0, 0x7FFFFFFF))
     ++m3g->objCount;
 
     /* Add the object to the list of live objects */
@@ -962,7 +962,7 @@ static void m3gAddChildObject(Interface *m3g, Object *obj)
  */
 static void m3gDelChildObject(Interface *m3g, Object *obj)
 {
-    M3G_ASSERT(m3g->objCount > 0);
+    M3G_ASSERT(m3g->objCount > 0)
 
     /* Remove the object from the list of live objects */
     m3gArrayDelete(&m3g->objects, m3gArrayFind(&m3g->objects, obj));
@@ -1015,7 +1015,7 @@ static void m3gCollectGLObjects(Interface *m3g)
     M3Gsizei n = m3gArraySize(objs);
     M3Gint i;
     for (i = 0; i < n; ++i) {
-        GLuint t = (GLuint) m3gGetArrayElement(objs, i);
+        GLuint t = (GLuint)(uintptr_t) m3gGetArrayElement(objs, i);
         glDeleteTextures(1, &t);
         M3G_LOG1(M3G_LOG_OBJECTS, "Destroyed GL texture object 0x%08X\n",
                  (unsigned) t);
@@ -1038,7 +1038,7 @@ static void m3gCollectGLObjects(Interface *m3g)
 /*@access M3GMemObject@*/
 static void *m3gMapObject(Interface *m3g, M3GMemObject handle)
 {
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
 
     if (handle == 0) {
         return NULL;
@@ -1051,10 +1051,10 @@ static void *m3gMapObject(Interface *m3g, M3GMemObject handle)
         ptr = (*m3g->func.objResolve)(handle);
         ptr = PAYLOAD_BLOCK(ptr);
 
-        M3G_LOG2(M3G_LOG_MEMORY_MAPPING, "MapObj 0x%08X -> 0x%08X\n",
-                 (unsigned) handle, (unsigned) ptr);
+        M3G_LOG2(M3G_LOG_MEMORY_MAPPING, "MapObj 0x%08X -> 0x%08\n" PRIxPTR,
+                 (uintptr_t) handle, (uintptr_t) ptr);
         
-        validateBlock(ptr);
+        validateBlock(ptr)
         return ptr;
     }
 }
@@ -1069,7 +1069,7 @@ static void *m3gMapObject(Interface *m3g, M3GMemObject handle)
 /*@access M3GMemObject@*/
 static void m3gUnmapObject(Interface *m3g, M3GMemObject handle)
 {
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     
 #   if defined(M3G_DEBUG)
     if (handle != 0) {
@@ -1094,9 +1094,9 @@ static void m3gUnmapObject(Interface *m3g, M3GMemObject handle)
  */
 static void m3gGarbageCollectAll(Interface *m3g)
 {
-    M3G_VALIDATE_INTERFACE(m3g);
-    M3G_ASSERT_NO_LOCK(m3g);
-    M3G_ASSERT(!m3g->tempLocked);
+    M3G_VALIDATE_INTERFACE(m3g)
+    M3G_ASSERT_NO_LOCK(m3g)
+    M3G_ASSERT(!m3g->tempLocked)
 
     /* Free the temporary buffer */
     
@@ -1181,7 +1181,7 @@ static void m3gDebugRaiseError(Interface *m3g,
 static void m3gRaiseError(Interface *m3g, M3Genum errorCode)
 #endif
 {
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
 
     if (errorCode == M3G_OUT_OF_MEMORY) {
         M3G_LOG(M3G_LOG_MEMORY_ALL|M3G_LOG_WARNINGS,
@@ -1209,7 +1209,7 @@ static void m3gRaiseError(Interface *m3g, M3Genum errorCode)
  */
 static M3GError m3gErrorRaised(const Interface *m3g)
 {
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     return (M3GError)m3g->error;
 }
 
@@ -1259,7 +1259,7 @@ static void m3gConfigureGL(Interface *m3g)
                     &config, 1,
                     &numConfigs);
 
-    M3G_ASSERT(numConfigs > 0);
+    M3G_ASSERT(numConfigs > 0)
     
     ctx = eglCreateContext(eglGetDisplay(0),
                            config,
@@ -1347,7 +1347,7 @@ static void m3gInitializeGL(Interface *m3g)
 #       define glRefCount m3g->glRefCount
 #   endif
     
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     M3G_UNREF(m3g);
 
     if (++glRefCount == 1) {
@@ -1387,7 +1387,7 @@ static void m3gInitializeGL(Interface *m3g)
 #       endif
     }
     
-    M3G_ASSERT(glRefCount > 0);
+    M3G_ASSERT(glRefCount > 0)
 
 #   undef glRefCount
 }
@@ -1404,9 +1404,9 @@ static void m3gShutdownGL(Interface *m3g)
 #       define glRefCount m3g->glRefCount
 #   endif
 
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     M3G_UNREF(m3g);
-    M3G_ASSERT(glRefCount > 0);    
+    M3G_ASSERT(glRefCount > 0)
     M3G_LOG(M3G_LOG_INTERFACE, "Shutting down GL...\n");
         
     if (--glRefCount == 0) {
@@ -1585,7 +1585,7 @@ M3G_API M3GInterface m3gCreateInterface(
      * execute the run-time sanity checks */
 
     if (!m3gSystemCheck()) {
-        M3G_ASSERT(M3G_FALSE);
+        M3G_ASSERT(M3G_FALSE)
         return NULL;
     }
 
@@ -1619,13 +1619,13 @@ M3G_API M3GInterface m3gCreateInterface(
             M3G_LOG(M3G_LOG_FATAL_ERRORS, "Interface creation failed\n");
             return NULL;
         }
-        M3G_LOG1(M3G_LOG_INTERFACE, "New interface 0x%08X\n", (unsigned) m3g);
+        M3G_LOG1(M3G_LOG_INTERFACE, "New interface 0x%08\n" PRIxPTR, (uintptr_t) m3g);
         
         m3g = (Interface *) PAYLOAD_BLOCK(m3g);
 #       if defined(M3G_DEBUG_HEAP_TRACKING)
         instrumentateBlock(m3g, sizeof(*m3g), __FILE__, __LINE__);
 #       else
-        instrumentateBlock(m3g, sizeof(*m3g));
+        instrumentateBlock(m3g, sizeof(*m3g))
 #       endif
         m3gZero(m3g, sizeof(*m3g));
             
@@ -1688,7 +1688,7 @@ M3G_API M3GInterface m3gCreateInterface(
         m3gInitArray(&m3g->objects);
         
         M3G_LOG1(M3G_LOG_INTERFACE,
-                 "Interface 0x%08X initialized\n", (unsigned) m3g);
+                 "Interface 0x%08X initialized\n" PRIxPTR, (uintptr_t) m3g);
         return (M3GInterface) m3g;
     }
 }
@@ -1699,16 +1699,16 @@ M3G_API M3GInterface m3gCreateInterface(
 M3G_API void m3gDeleteInterface(M3GInterface interface)
 {
     Interface *m3g = (Interface *)interface;
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     M3G_LOG1(M3G_LOG_INTERFACE,
-             "Shutting down interface 0x%08X...\n", (unsigned) m3g);
+             "Shutting down interface 0x%08X...\n" PRIxPTR, (uintptr_t) m3g);
 
     /* Check if we still have objects lingering (this may happen when
      * Java GC deletes the interface first, for instance), and just
      * mark the interface for deletion in that case */
     
     if (m3g->objCount > 0) {
-        M3G_ASSERT(!interface->shutdown);
+        M3G_ASSERT(!interface->shutdown)
         M3G_LOG1(M3G_LOG_INTERFACE, "Waiting for %d objects\n",
                  interface->objCount);
         interface->shutdown = M3G_TRUE;
@@ -1725,7 +1725,7 @@ M3G_API void m3gDeleteInterface(M3GInterface interface)
 
     /* Delete temp buffers and caches */
     
-    M3G_ASSERT(!m3g->tempLocked);
+    M3G_ASSERT(!m3g->tempLocked)
     m3gFree(m3g, m3g->tempBuffer);
 
     m3gDeleteTransformCache(m3g->tcache);
@@ -1750,18 +1750,18 @@ M3G_API void m3gDeleteInterface(M3GInterface interface)
 #   endif /* M3G_DEBUG */
 
     /* Cleanup profiling resources */
-    m3gCleanupProfile();
+    m3gCleanupProfile()
     m3gLogMemoryPeakCounter(m3g);
     
     /* Delete self */
     {
         m3gFreeFunc *freeFunc = m3g->func.free;
-        destroyBlock(m3g);
+        destroyBlock(m3g)
         (*freeFunc)(PHYSICAL_BLOCK(m3g));
     }
 
     M3G_LOG1(M3G_LOG_INTERFACE,
-             "Interface 0x%08X destroyed\n", (unsigned) m3g);
+             "Interface 0x%08X destroyed\n" PRIxPTR, (uintptr_t) m3g);
 
     /* Allow for log cleanup */
     
@@ -1781,7 +1781,7 @@ M3G_API void m3gDeleteInterface(M3GInterface interface)
 M3G_API M3Genum m3gGetError(M3GInterface interface)
 {
     Interface *m3g = (Interface *)interface;
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     {
         M3Genum error = m3g->error;
         m3g->error = M3G_NO_ERROR;
@@ -1801,7 +1801,7 @@ M3G_API M3Genum m3gGetError(M3GInterface interface)
 M3G_API void *m3gGetUserContext(M3GInterface interface)
 {
     Interface *m3g = (Interface *)interface;
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     return m3g->userContext;
 }
 
@@ -1817,7 +1817,7 @@ M3G_API void *m3gGetUserContext(M3GInterface interface)
 M3G_API M3Gbool m3gIsAntialiasingSupported(M3GInterface interface)
 {
     Interface *m3g = (Interface *)interface;
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     return m3g->supportAntialiasing;
 }
 
@@ -1832,7 +1832,7 @@ M3G_API M3Gbool m3gIsAntialiasingSupported(M3GInterface interface)
 M3G_API void m3gGarbageCollect(M3GInterface interface)
 {
     Interface *m3g = (Interface *) interface;
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
     m3gGarbageCollectAll(m3g);
 }
 

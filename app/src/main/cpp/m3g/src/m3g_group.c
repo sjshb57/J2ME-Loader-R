@@ -855,7 +855,7 @@ M3G_API M3GNode m3gPick3D(M3GGroup handle,
     Group *group = (Group *) handle;
     M3G_VALIDATE_OBJECT(group);
 
-    M3G_LOG1(M3G_LOG_STAGES, "Picking group 0x%08X\n", (unsigned) group);
+    M3G_LOG1(M3G_LOG_STAGES, "Picking group 0x%08\n" PRIxPTR, (uintptr_t) group);
     
     /* Check for errors */
     if (ray[3] == 0 && ray[4] == 0 && ray[5] == 0) {
@@ -934,8 +934,8 @@ M3G_API M3GNode m3gPick2D(M3GGroup handle,
     Node *root;
     Group *group = (Group *) handle;    
 
-    M3G_LOG2(M3G_LOG_STAGES, "Picking group 0x%08X via camera 0x%08X\n",
-             (unsigned) group, (unsigned) hCamera);
+    M3G_LOG2(M3G_LOG_STAGES, "Picking group 0x%08X via camera 0x%08\n" PRIxPTR,
+             (uintptr_t) group, (uintptr_t) hCamera);
     
     M3G_VALIDATE_OBJECT(group);
 

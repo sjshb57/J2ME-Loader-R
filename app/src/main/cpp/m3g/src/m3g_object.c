@@ -60,9 +60,9 @@ static void m3gInitObject(Object *obj,
     m3gMarkObject(obj);
     
     m3gIncStat(M3G_INTERFACE(obj), M3G_STAT_OBJECTS, 1);
-    M3G_LOG2(M3G_LOG_OBJECTS, "New %s 0x%08X\n",
+    M3G_LOG2(M3G_LOG_OBJECTS, "New %s 0x%08\n" PRIxPTR,
              m3gClassName((M3GClass) obj->classID),
-             (unsigned) obj);
+             (uintptr_t) obj);
 }
 
 /*!
@@ -90,9 +90,9 @@ static void m3gDestroyObject(Object *obj)
     m3gUnmarkObject(obj);
     
     m3gIncStat(M3G_INTERFACE(obj), M3G_STAT_OBJECTS, -1);
-    M3G_LOG2(M3G_LOG_OBJECTS, "Destroyed %s 0x%08X\n",
+    M3G_LOG2(M3G_LOG_OBJECTS, "Destroyed %s 0x%08\n" PRIxPTR,
              m3gClassName((M3GClass) obj->classID),
-             (unsigned) obj);
+             (uintptr_t) obj);
 }
 
 /*----------------------------------------------------------------------
@@ -459,9 +459,9 @@ M3G_API void m3gDeleteObject(M3GObject hObject)
         }
         else {
             M3G_LOG2(M3G_LOG_REFCOUNT,
-                     "Deleting %s 0x%08X\n",
+                     "Deleting %s 0x%08\n" PRIxPTR,
                      m3gClassName((M3GClass) obj->classID),
-                     (unsigned) obj);
+                     (uintptr_t) obj);
             
             m3g = obj->interface;
             M3G_VALIDATE_INTERFACE(m3g);
@@ -485,10 +485,10 @@ M3G_API void m3gAddRef(M3GObject hObject)
     M3G_VALIDATE_OBJECT(obj);
 
     M3G_LOG3(M3G_LOG_REFCOUNT,
-             "Adding ref to 0x%08X (%s), new count %u\n",
-             (unsigned) obj,
+             "Adding ref to 0x%08 (%s), new count %u\n" PRIxPTR,
+             (uintptr_t) obj,
              m3gClassName((M3GClass) obj->classID),
-             (unsigned) (obj->refCount + 1));
+             (uintptr_t) (obj->refCount + 1));
 
     M3G_ASSERT(obj->refCount < 0xFFFFFF);
     ++obj->refCount;
@@ -508,10 +508,10 @@ M3G_API void m3gDeleteRef(M3GObject hObject)
     M3G_ASSERT(obj->refCount > 0);
 
     M3G_LOG3(M3G_LOG_REFCOUNT,
-             "Deleting ref to 0x%08X (%s), new count %u\n",
-             (unsigned) obj,
+             "Deleting ref to 0x%08 (%s), new count %u\n" PRIxPTR,
+             (uintptr_t) obj,
              m3gClassName((M3GClass) obj->classID),
-             (unsigned) (obj->refCount - 1));
+             (uintptr_t) (obj->refCount - 1));
 
     if (--obj->refCount == 0) {
         m3gDeleteObject(hObject);
@@ -664,8 +664,8 @@ M3G_API M3Gint m3gAnimate(M3GObject hObject, M3Gint time)
     Object *obj = (Object *) hObject;
 
     M3G_LOG2(M3G_LOG_STAGES,
-             "Animating %s 0x%08X\n",
-             m3gClassName((M3GClass) obj->classID), (unsigned) obj);
+             "Animating %s 0x%08\n" PRIxPTR,
+             m3gClassName((M3GClass) obj->classID), (uintptr_t) obj);
     
     M3G_VALIDATE_OBJECT(obj);
     
@@ -708,8 +708,8 @@ M3G_API M3GObject m3gDuplicate(M3GObject hObject, M3Gulong *hReferences)
     M3Gint numRef = 0;
 
     M3G_LOG2(M3G_LOG_STAGES|M3G_LOG_OBJECTS,
-             "Duplicating %s 0x%08X\n",
-             m3gClassName((M3GClass) obj->classID), (unsigned) obj);
+             "Duplicating %s 0x%08\n" PRIxPTR,
+             m3gClassName((M3GClass) obj->classID), (uintptr_t) obj);
 
     M3G_VALIDATE_OBJECT(obj);
     
@@ -763,8 +763,8 @@ M3G_API M3GObject m3gFind(M3GObject hObject, M3Gint userID)
 {
     Object *obj = (Object *) hObject;
 
-    M3G_LOG3(M3G_LOG_STAGES, "Finding ID 0x%08X (%d) in 0x%08X\n",
-             (unsigned) userID, userID, (unsigned) obj);
+    M3G_LOG3(M3G_LOG_STAGES, "Finding ID 0x%08X (%d) in 0x%08\n" PRIxPTR,
+             (unsigned) userID, userID, (uintptr_t) obj);
     
     M3G_VALIDATE_OBJECT(obj);
 

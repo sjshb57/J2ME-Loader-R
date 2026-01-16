@@ -57,7 +57,7 @@ static void m3gApplyAppearanceDefaults(RenderContext *ctx)
  */
 static M3Guint m3gGenPointerHash(const void *ptr)
 {
-    M3Guint p = ((M3Guint) ptr) >> 2;
+    M3Guint p = ((uintptr_t) ptr) >> 2;
     M3Guint key = p ^ (p >> 5) ^ (p >> 10) ^ (p >> 15) ^ (p >> 20) ^ (p >> 25);
     return key;
 }

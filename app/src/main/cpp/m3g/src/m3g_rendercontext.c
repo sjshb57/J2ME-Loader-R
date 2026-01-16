@@ -238,7 +238,7 @@ static M3Gbool m3gValidTargetFormat(M3GPixelFormat format);
 static void m3gDestroyContext(/*@only@*/ Object *obj)
 {
     RenderContext *ctx = (RenderContext *) obj;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_ASSIGN_REF(ctx->camera, NULL);
     
@@ -548,7 +548,7 @@ static void m3gSetGLDefaults(void)
  */
 static void m3gValidateBuffers(RenderContext *ctx)
 {
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     /* Initialize OpenGL if not already done */
     
@@ -624,7 +624,7 @@ static void m3gMakeCurrent(RenderContext *ctx)
         glDisable(GL_MULTISAMPLE);
     }
     
-    M3G_ASSERT_GL;
+    M3G_ASSERT_GL
 }
 
 /*!
@@ -663,7 +663,7 @@ static M3G_INLINE void m3gApplyLights(RenderContext *ctx, M3Gint scope)
             glPopMatrix();
         }
     }
-	M3G_ASSERT_GL;
+	M3G_ASSERT_GL
 }
 
 /*!
@@ -682,7 +682,7 @@ static const Camera *m3gGetCurrentCamera(const RenderContext *ctx) {
 static void m3gInitRender(M3GRenderContext context, M3Genum renderMode)
 {
     RenderContext *ctx = (RenderContext *) context;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     
     m3gIncrementRenderTimeStamp(ctx);
     m3gMakeCurrent(ctx);
@@ -702,7 +702,7 @@ static void m3gInitRender(M3GRenderContext context, M3Genum renderMode)
 	glDepthRangef(ctx->depthNear, ctx->depthFar);
     glScissor(ctx->scissor.x, ctx->scissor.y,
               ctx->scissor.width, ctx->scissor.height);
-    M3G_ASSERT_GL;
+    M3G_ASSERT_GL
     
     /* Set up the projection and viewing transformations (static
      * during rendering) */
@@ -714,7 +714,7 @@ static void m3gInitRender(M3GRenderContext context, M3Genum renderMode)
     else {
         glLoadMatrixf(ctx->viewTransform);
     }
-    M3G_ASSERT_GL;
+    M3G_ASSERT_GL
 
     /* Invalidate any already set GL lights if rendering mode changed */
     
@@ -771,7 +771,7 @@ static void m3gUpdateColorMaskStatus(RenderContext *ctx,
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_ALWAYS);
         m3gDisableTextures();
-        M3G_ASSERT_GL;
+        M3G_ASSERT_GL
     
         /* Bind the default texture and set up screen space rendering */
         
@@ -779,7 +779,7 @@ static void m3gUpdateColorMaskStatus(RenderContext *ctx,
         glBindTexture(GL_TEXTURE_2D, 0);
         glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        M3G_ASSERT_GL;
+        M3G_ASSERT_GL
 
         glScissor(ctx->clip.x0, ctx->clip.y0,
                   ctx->clip.x1 - ctx->clip.x0, ctx->clip.y1 - ctx->clip.y0);
@@ -788,7 +788,7 @@ static void m3gUpdateColorMaskStatus(RenderContext *ctx,
         glMatrixMode(GL_PROJECTION);
         glOrthox(0, ctx->target.width << 16,
                  0, ctx->target.height << 16,
-                 -1 << 16, 1 << 16);
+                 -(1 << 16), 1 << 16);
         glMatrixMode(GL_MODELVIEW);
             
         /* Set up texture and vertex coordinate arrays */
@@ -799,7 +799,7 @@ static void m3gUpdateColorMaskStatus(RenderContext *ctx,
         glMatrixMode(GL_TEXTURE);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
-        M3G_ASSERT_GL;
+        M3G_ASSERT_GL
 
         /* Blend the texture with the frame buffer */
         {
@@ -853,7 +853,7 @@ static void m3gUpdateColorMaskStatus(RenderContext *ctx,
         GLenum err;
             
         glBindTexture(GL_TEXTURE_2D, 0);
-        M3G_ASSERT_GL;
+        M3G_ASSERT_GL
             
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                          ctx->clip.x0, ctx->clip.y0,
@@ -871,7 +871,7 @@ static void m3gUpdateColorMaskStatus(RenderContext *ctx,
         if (err == GL_OUT_OF_MEMORY) {
             m3gRaiseError(M3G_INTERFACE(ctx), M3G_OUT_OF_MEMORY);
         }
-        M3G_ASSERT(!err);
+        M3G_ASSERT(!err)
     }
     else {
         
@@ -903,7 +903,7 @@ static void m3gUpdateColorMaskStatus(RenderContext *ctx,
  */
 static void m3gPushScreenSpace(RenderContext *ctx, M3Gbool realPixels)
 {
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -911,7 +911,7 @@ static void m3gPushScreenSpace(RenderContext *ctx, M3Gbool realPixels)
     if (realPixels) {
         int w = ctx->viewport.width;
         int h = ctx->viewport.height;
-        glOrthox(0, w << 16, 0, h << 16, -1 << 16, 1 << 16);
+        glOrthox(0, w << 16, 0, h << 16, -(1 << 16), 1 << 16);
     }
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -925,7 +925,7 @@ static void m3gPushScreenSpace(RenderContext *ctx, M3Gbool realPixels)
  */
 static void m3gPopSpace(RenderContext *ctx)
 {
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     
     M3G_UNREF(ctx);
     glMatrixMode(GL_PROJECTION);
@@ -976,7 +976,7 @@ static void m3gClearInternal(RenderContext *ctx, Background *bg)
 
     /* All clear for clearing... */
     
-    m3gLockFrameBuffer(ctx);
+    m3gLockFrameBuffer(ctx)
     
     if (bg != NULL) {
         m3gApplyBackground(ctx, bg);
@@ -993,7 +993,7 @@ static void m3gClearInternal(RenderContext *ctx, Background *bg)
         }
     }
         
-    m3gReleaseFrameBuffer(ctx);
+    m3gReleaseFrameBuffer(ctx)
 }
 
 /*!
@@ -1012,10 +1012,10 @@ static void m3gDrawMesh(RenderContext *ctx,
                         M3Gint alphaFactor,
                         M3Gint scope)
 {
-    M3G_VALIDATE_OBJECT(ctx);
-    M3G_VALIDATE_OBJECT(vb);
-    M3G_VALIDATE_OBJECT(ib);
-    M3G_VALIDATE_OBJECT(app);
+    M3G_VALIDATE_OBJECT(ctx)
+    M3G_VALIDATE_OBJECT(vb)
+    M3G_VALIDATE_OBJECT(ib)
+    M3G_VALIDATE_OBJECT(app)
 
     /* Check whether we need to use alternate rendering to get
      * two-sided lighting */
@@ -1025,7 +1025,7 @@ static void m3gDrawMesh(RenderContext *ctx,
         }
     }
 
-    M3G_ASSERT(m3gInRange(alphaFactor, 0, 0x10000));
+    M3G_ASSERT(m3gInRange(alphaFactor, 0, 0x10000))
     
     if (m3gGetColorMaskWorkaround(M3G_INTERFACE(ctx))) {
 		m3gUpdateColorMaskStatus(ctx, m3gColorMask(app), m3gAlphaMask(app));
@@ -1053,9 +1053,9 @@ static void m3gDrawMesh(RenderContext *ctx,
 
     if (alphaFactor < 0x10000 && !m3gValidateAlphaCache(vb)) {
         M3Gbool ok;
-        m3gReleaseFrameBuffer(ctx);
+        m3gReleaseFrameBuffer(ctx)
         ok = m3gCreateAlphaColorCache(vb->colors);
-        m3gLockFrameBuffer(ctx);
+        m3gLockFrameBuffer(ctx)
         if (!ok) {
             goto RestoreModelview; /* let's just skip the drawing part */
         }
@@ -1163,7 +1163,7 @@ static const ObjectVFTable m3gvf_RenderContext = {
 M3G_API M3GRenderContext m3gCreateContext(M3GInterface interface)/*@*/
 {
     Interface *m3g = (Interface*) interface;
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
         
     {
         RenderContext *ctx =
@@ -1201,7 +1201,7 @@ M3G_API M3Gbool m3gSetRenderBuffers(M3GRenderContext hCtx,
                                     M3Gbitmask bufferBits)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     if ((bufferBits & ~(M3G_COLOR_BUFFER_BIT|M3G_DEPTH_BUFFER_BIT|M3G_STENCIL_BUFFER_BIT|M3G_MULTISAMPLE_BUFFER_BIT)) != 0) {
         m3gRaiseError(M3G_INTERFACE(ctx), M3G_INVALID_VALUE);
@@ -1221,7 +1221,7 @@ M3G_API M3Gbool m3gSetRenderBuffers(M3GRenderContext hCtx,
 M3G_API M3Gbool m3gSetRenderHints(M3GRenderContext hCtx, M3Gbitmask modeBits)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     if ((modeBits & ~(M3G_OVERWRITE_BIT|M3G_ANTIALIAS_BIT|M3G_DITHER_BIT|M3G_TRUECOLOR_BIT)) != 0) {
         m3gRaiseError(M3G_INTERFACE(ctx), M3G_INVALID_VALUE);
@@ -1249,11 +1249,11 @@ M3G_API void m3gBindImageTarget(M3GRenderContext hCtx, M3GImage hImage)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
     Image *img = (Image *) hImage;
-    M3G_VALIDATE_OBJECT(ctx);
-    M3G_VALIDATE_OBJECT(img);
+    M3G_VALIDATE_OBJECT(ctx)
+    M3G_VALIDATE_OBJECT(img)
 
-    M3G_LOG1(M3G_LOG_RENDERING, "Binding image target 0x%08X\n",
-             (unsigned) img);
+    M3G_LOG1(M3G_LOG_RENDERING, "Binding image target 0x%08\n" PRIxPTR,
+             (uintptr_t) img);
 
     /* Check for image-specific errors */
     
@@ -1289,7 +1289,7 @@ M3G_API void m3gBindImageTarget(M3GRenderContext hCtx, M3GImage hImage)
 M3G_API M3Guint m3gGetUserHandle(M3GRenderContext hCtx)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     if (ctx->target.type == SURFACE_MEMORY) {
         return ctx->target.handle;
@@ -1302,7 +1302,7 @@ M3G_API M3Guint m3gGetUserHandle(M3GRenderContext hCtx)
 M3G_API void m3gSetUserData(M3GRenderContext hCtx, M3Guint hData)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     ctx->target.userData = hData;
 }
 
@@ -1311,7 +1311,7 @@ M3G_API void m3gSetUserData(M3GRenderContext hCtx, M3Guint hData)
 M3G_API M3Guint m3gGetUserData(M3GRenderContext hCtx)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     return ctx->target.userData;
 }
 
@@ -1322,7 +1322,7 @@ M3G_API void m3gClear(M3GRenderContext context, M3GBackground hBackground)
 {
     RenderContext *ctx = (RenderContext*) context;
     Background *bg = (Background *) hBackground;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_LOG(M3G_LOG_STAGES, "Clearing frame buffer\n");
     
@@ -1351,7 +1351,7 @@ M3G_API void m3gClear(M3GRenderContext context, M3GBackground hBackground)
 M3G_API void m3gReleaseTarget(M3GRenderContext context)
 {
     RenderContext *ctx = (RenderContext*) context;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_LOG(M3G_LOG_RENDERING, "Releasing target\n");
     
@@ -1378,7 +1378,7 @@ M3G_API void m3gReleaseTarget(M3GRenderContext context)
     
     if (ctx->target.type == SURFACE_IMAGE) {
         Image *img = (Image *) ctx->target.handle;
-        M3G_VALIDATE_OBJECT(img);
+        M3G_VALIDATE_OBJECT(img)
         m3gInvalidateImage(img);
         m3gDeleteRef((Object*) img);
     }
@@ -1421,7 +1421,7 @@ M3G_API void m3gSetCamera(M3GRenderContext context,
     RenderContext *ctx = (RenderContext*) context;
 	const Camera *camera = (Camera *)hCamera;
 
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_ASSIGN_REF(ctx->camera, camera);
 
@@ -1449,7 +1449,7 @@ M3G_API M3Gint m3gAddLight(M3GRenderContext hCtx,
 {
     RenderContext *ctx = (RenderContext *)hCtx;
     Light *light = (Light *)hLight;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     if (light == NULL) {
         m3gRaiseError(M3G_INTERFACE(ctx), M3G_INVALID_VALUE);
@@ -1457,7 +1457,7 @@ M3G_API M3Gint m3gAddLight(M3GRenderContext hCtx,
     }
     else {
         LightManager *mgr = &ctx->lightManager;
-        M3G_VALIDATE_OBJECT(light);
+        M3G_VALIDATE_OBJECT(light)
         ctx->lastScope = 0;
         return m3gInsertLight(mgr, light, transform, M3G_INTERFACE(ctx));
     }
@@ -1473,7 +1473,7 @@ M3G_API void m3gSetLight(M3GRenderContext context,
 {
     RenderContext *ctx = (RenderContext*) context;
 	Light *light = (Light *)hLight;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
 	/* Check for invalid arguments */
 	if (lightIndex < 0 || lightIndex >= m3gLightArraySize(&ctx->lightManager)) {
@@ -1491,7 +1491,7 @@ M3G_API void m3gSetLight(M3GRenderContext context,
 M3G_API void m3gClearLights(M3GRenderContext context)
 {
     RenderContext *ctx = (RenderContext *)context;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     ctx->lastScope = 0;
     m3gClearLights2(&ctx->lightManager);
 }
@@ -1505,7 +1505,7 @@ M3G_API void m3gSetViewport(M3GRenderContext hCtx,
                             M3Gint width, M3Gint height)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     /* Note that the error checking here differs from that specified
      * for the Java API; this is to avoid complications when setting
@@ -1536,7 +1536,7 @@ M3G_API void m3gGetViewport(M3GRenderContext hCtx,
                             M3Gint *width, M3Gint *height)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     *x = ctx->viewport.x;
     *y = ctx->target.height - (ctx->viewport.y + ctx->viewport.height);
@@ -1552,7 +1552,7 @@ M3G_API void m3gSetClipRect(M3GRenderContext hCtx,
                             M3Gint width, M3Gint height)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     if (width < 0 || height < 0) {
         m3gRaiseError(M3G_INTERFACE(ctx), M3G_INVALID_VALUE);
@@ -1581,7 +1581,7 @@ M3G_API void m3gSetDisplayArea(M3GRenderContext hCtx,
                                M3Gint width, M3Gint height)
 {
     RenderContext *ctx = (RenderContext*) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     
     ctx->display.width = M3G_MIN(width, ctx->target.width);
     ctx->display.height = M3G_MIN(height, ctx->target.height);
@@ -1595,7 +1595,7 @@ M3G_API void m3gSetDepthRange(M3GRenderContext hCtx,
                               M3Gfloat depthNear, M3Gfloat depthFar)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 	
 	if (depthNear < 0 || depthNear > 1.0f || depthFar < 0 || depthFar > 1.0f) {
 		m3gRaiseError(M3G_INTERFACE(ctx), M3G_INVALID_VALUE);
@@ -1614,7 +1614,7 @@ M3G_API void m3gGetDepthRange(M3GRenderContext hCtx,
                               M3Gfloat *depthNear, M3Gfloat *depthFar)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 	
 	*depthNear = ctx->depthNear;
 	*depthFar= ctx->depthFar;
@@ -1629,7 +1629,7 @@ M3G_API void m3gGetViewTransform(M3GRenderContext hCtx,
                                  M3GMatrix *transform)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     m3gSetMatrixColumns(transform, ctx->viewTransform);
     m3gInvertMatrix(transform); /*lint !e534 always invertible */
 }
@@ -1642,7 +1642,7 @@ M3G_API void m3gGetViewTransform(M3GRenderContext hCtx,
 M3G_API M3GCamera m3gGetCamera(M3GRenderContext hCtx)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     return (M3GCamera) ctx->camera;
 }
 
@@ -1655,7 +1655,7 @@ M3G_API M3GLight m3gGetLightTransform (M3GRenderContext hCtx,
                                        M3Gint lightIndex, M3GMatrix *transform)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     return m3gGetLightTransformInternal(&ctx->lightManager, lightIndex, transform);
 }
 
@@ -1667,7 +1667,7 @@ M3G_API M3GLight m3gGetLightTransform (M3GRenderContext hCtx,
 M3G_API M3Gsizei m3gGetLightCount (M3GRenderContext hCtx)
 {
     RenderContext *ctx = (RenderContext *)hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     return m3gLightArraySize(&ctx->lightManager);
 }
 
@@ -1681,10 +1681,10 @@ M3G_API void m3gRenderWorld(M3GRenderContext context, M3GWorld hWorld)
     RenderContext *ctx = (RenderContext*) context;
 	World *world = (World *) hWorld;
 
-    M3G_LOG1(M3G_LOG_STAGES, "Rendering World 0x%08X\n", (unsigned) world);
+    M3G_LOG1(M3G_LOG_STAGES, "Rendering World 0x%08\n" PRIxPTR, (uintptr_t) world);
     
-    M3G_VALIDATE_OBJECT(ctx);
-    M3G_VALIDATE_OBJECT(world);
+    M3G_VALIDATE_OBJECT(ctx)
+    M3G_VALIDATE_OBJECT(world)
 
 	camera = m3gGetActiveCamera(world);
 
@@ -1723,7 +1723,7 @@ M3G_API void m3gRenderWorld(M3GRenderContext context, M3GWorld hWorld)
     /* All clear for rendering */
     
     M3G_LOG(M3G_LOG_RENDERING, "Rendering: start\n");    
-    M3G_ASSERT(ctx->renderQueue->root == NULL);
+    M3G_ASSERT(ctx->renderQueue->root == NULL)
     M3G_BEGIN_PROFILE(M3G_INTERFACE(ctx), M3G_PROFILE_VALIDATE);
     
     if (m3gValidateNode((Node*) world, NODE_RENDER_BIT, camera->node.scope)) {
@@ -1756,9 +1756,9 @@ M3G_API void m3gRenderWorld(M3GRenderContext context, M3GWorld hWorld)
 
         if (setup) {
             m3gInitRender(ctx, RENDER_WORLD);
-            m3gLockFrameBuffer(ctx);
+            m3gLockFrameBuffer(ctx)
             m3gCommit(ctx->renderQueue, ctx);
-            m3gReleaseFrameBuffer(ctx);
+            m3gReleaseFrameBuffer(ctx)
         }
         
         M3G_END_PROFILE(M3G_INTERFACE(ctx), M3G_PROFILE_COMMIT);
@@ -1774,11 +1774,11 @@ M3G_API void m3gRenderWorld(M3GRenderContext context, M3GWorld hWorld)
                     m3gTransformLights(&ctx->lightManager, &m);
                 }
                 else {
-                    M3G_ASSERT(M3G_FALSE);
+                    M3G_ASSERT(M3G_FALSE)
                 }
             }
             else {
-                M3G_ASSERT(M3G_FALSE);
+                M3G_ASSERT(M3G_FALSE)
             }
         }
     }
@@ -1797,10 +1797,10 @@ M3G_API void m3gRenderNode(M3GRenderContext context,
     RenderContext *ctx = (RenderContext*) context;
     Node *node = (Node *) hNode;
 
-    M3G_LOG1(M3G_LOG_STAGES, "Rendering Node 0x%08X\n", (unsigned) node);
+    M3G_LOG1(M3G_LOG_STAGES, "Rendering Node 0x%08\n" PRIxPTR, (uintptr_t) node);
     
-    M3G_VALIDATE_OBJECT(ctx);
-    M3G_VALIDATE_OBJECT(node);
+    M3G_VALIDATE_OBJECT(ctx)
+    M3G_VALIDATE_OBJECT(node)
 
     /* Check for errors */
     
@@ -1823,7 +1823,7 @@ M3G_API void m3gRenderNode(M3GRenderContext context,
     /* All clear, draw away */
 
     M3G_LOG(M3G_LOG_RENDERING, "Rendering: start\n");
-	M3G_ASSERT(ctx->renderQueue->root == NULL);
+	M3G_ASSERT(ctx->renderQueue->root == NULL)
     M3G_BEGIN_PROFILE(M3G_INTERFACE(ctx), M3G_PROFILE_VALIDATE);
     
     if (m3gValidateNode(node, NODE_RENDER_BIT, ctx->camera->node.scope)) {
@@ -1858,9 +1858,9 @@ M3G_API void m3gRenderNode(M3GRenderContext context,
         
         if (setup) {
             m3gInitRender(ctx, RENDER_NODES);
-            m3gLockFrameBuffer(ctx);
+            m3gLockFrameBuffer(ctx)
     		m3gCommit(ctx->renderQueue, ctx);
-            m3gReleaseFrameBuffer(ctx);
+            m3gReleaseFrameBuffer(ctx)
         }
         
         M3G_END_PROFILE(M3G_INTERFACE(ctx), M3G_PROFILE_COMMIT);
@@ -1887,10 +1887,10 @@ M3G_API void m3gRender(M3GRenderContext context,
     const VertexBuffer *vb = (const VertexBuffer *) hVertices;
     const IndexBuffer *ib = (const IndexBuffer *) hIndices;
     const Appearance *app = (const Appearance *) hAppearance;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
-    M3G_LOG1(M3G_LOG_STAGES, "Rendering vertex buffer 0x%08X\n",
-             (unsigned) vb);
+    M3G_LOG1(M3G_LOG_STAGES, "Rendering vertex buffer 0x%08\n" PRIxPTR,
+             (uintptr_t) vb);
     
     /* Check validity of input */
     
@@ -1921,7 +1921,7 @@ M3G_API void m3gRender(M3GRenderContext context,
     M3G_LOG(M3G_LOG_RENDERING, "Rendering: start immediate\n");
     
     m3gInitRender(ctx, RENDER_IMMEDIATE);
-    m3gLockFrameBuffer(ctx);
+    m3gLockFrameBuffer(ctx)
     m3gDrawMesh(ctx,
                 vb, ib, app,
                 transformMatrix,
@@ -1929,7 +1929,7 @@ M3G_API void m3gRender(M3GRenderContext context,
                     m3gMul(alphaFactor,
                            (M3Gfloat)(1 << NODE_ALPHA_FACTOR_BITS))),
                 scope);
-    m3gReleaseFrameBuffer(ctx);
+    m3gReleaseFrameBuffer(ctx)
     
     M3G_LOG(M3G_LOG_RENDERING, "Rendering: end immediate\n");
 }

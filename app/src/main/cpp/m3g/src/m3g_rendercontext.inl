@@ -28,6 +28,8 @@
 
 #include <EGL/egl.h>
 #include "m3g_image.h"
+#include <stdint.h>
+#include <inttypes.h>
 
 /*----------------------------------------------------------------------
  * Private functions
@@ -159,7 +161,7 @@ static EGLConfig m3gQueryEGLConfig(M3Genum format,
             }
             
             
-            M3G_ASSERT(error == EGL_SUCCESS);
+            M3G_ASSERT(error == EGL_SUCCESS)
 
             /* If we got a config, return that; otherwise, drop the
              * number of multisampling samples and try again, or
@@ -258,8 +260,8 @@ static void m3gDeleteGLContext(EGLContext ctx)
         M3G_ASSERT(err == EGL_SUCCESS);
     }
 #   endif
-    M3G_LOG1(M3G_LOG_OBJECTS, "Destroyed GL context 0x%08X\n",
-             (unsigned) ctx);
+    M3G_LOG1(M3G_LOG_OBJECTS, "Destroyed GL context 0x%08\n" PRIxPTR,
+             (uintptr_t) ctx);
 }
 
     
@@ -272,7 +274,7 @@ static EGLSurface m3gCreateWindowSurface(M3Genum format,
                                          M3GNativeWindow wnd)
 {
     EGLSurface surf;
-    EGLConfig config = m3gQueryEGLConfig(format, bufferBits, EGL_WINDOW_BIT, NULL);
+    EGLConfig config = m3gQueryEGLConfig(format, bufferBits, EGL_WINDOW_BIT, 0);
     
     if (!config) {
         return NULL;
@@ -280,7 +282,7 @@ static EGLSurface m3gCreateWindowSurface(M3Genum format,
 
     surf = eglCreateWindowSurface(eglGetDisplay(EGL_DEFAULT_DISPLAY),
                                   config,
-                                  (NativeWindowType) wnd,
+                                  (NativeWindowType)(uintptr_t) wnd,
                                   NULL);
 
 #   if defined(M3G_DEBUG)
@@ -291,8 +293,8 @@ static EGLSurface m3gCreateWindowSurface(M3Genum format,
 #   endif
 
     if (surf != EGL_NO_SURFACE) {
-        M3G_LOG1(M3G_LOG_OBJECTS, "New GL window surface 0x%08X\n",
-                 (unsigned) surf);
+        M3G_LOG1(M3G_LOG_OBJECTS, "New GL window surface 0x%08\n" PRIxPTR,
+                 (uintptr_t) surf);
         return surf;
     }
     return NULL;
@@ -316,7 +318,7 @@ static EGLSurface m3gCreateBitmapSurface(M3Genum format,
     
     surf = eglCreatePixmapSurface(eglGetDisplay(EGL_DEFAULT_DISPLAY),
                                   config,
-                                  (NativePixmapType) bmp,
+                                  (NativePixmapType)(uintptr_t) bmp,
                                   NULL);
 
 #   if defined(M3G_DEBUG)
@@ -327,8 +329,8 @@ static EGLSurface m3gCreateBitmapSurface(M3Genum format,
 #   endif
     
     if (surf != EGL_NO_SURFACE) {
-        M3G_LOG1(M3G_LOG_OBJECTS, "New GL pixmap surface 0x%08X\n",
-                 (unsigned) surf);
+        M3G_LOG1(M3G_LOG_OBJECTS, "New GL pixmap surface 0x%08\n" PRIxPTR,
+                 (uintptr_t) surf);
         return surf;
     }
     return NULL;
@@ -353,7 +355,7 @@ static EGLSurface m3gCreatePBufferSurface(M3Genum format,
     attrib[3] = height;
     attrib[4] = EGL_NONE;
     
-    config = m3gQueryEGLConfig(format, bufferBits, EGL_PBUFFER_BIT, NULL);
+    config = m3gQueryEGLConfig(format, bufferBits, EGL_PBUFFER_BIT, 0);
     if (!config) {
         return NULL;
     }
@@ -369,8 +371,8 @@ static EGLSurface m3gCreatePBufferSurface(M3Genum format,
 #   endif
                                               
     if (surf != EGL_NO_SURFACE) {
-        M3G_LOG1(M3G_LOG_OBJECTS, "New GL pbuffer surface 0x%08X\n",
-                 (unsigned) surf);
+        M3G_LOG1(M3G_LOG_OBJECTS, "New GL pbuffer surface 0x%08\n" PRIxPTR,
+                 (uintptr_t) surf);
         return surf;
     }
     return NULL;
@@ -392,8 +394,8 @@ static void m3gDeleteGLSurface(EGLSurface surface)
     }
 #   endif
 
-    M3G_LOG1(M3G_LOG_OBJECTS, "Destroyed GL surface 0x%08X\n",
-             (unsigned) surface);
+    M3G_LOG1(M3G_LOG_OBJECTS, "Destroyed GL surface 0x%08\n" PRIxPTR,
+             (uintptr_t) surface);
 }
 
 /*!
@@ -433,14 +435,14 @@ static void m3gBlitFrameBufferPixels2(RenderContext *ctx,
     GLuint tempTexObj[MAX_TEMP_TEXTURES];
     GLint tempTexCount;
         
-    M3G_VALIDATE_OBJECT(ctx);
-    M3G_ASSERT_GL;
+    M3G_VALIDATE_OBJECT(ctx)
+    M3G_ASSERT_GL
 
     /* Analyze source and destination formats for possible conversion */
     
     glFormat = m3gGetGLFormat(internalFormat);
     if (!glFormat) {
-        M3G_ASSERT(M3G_FALSE);  /* internal format not supported in GL */
+        M3G_ASSERT(M3G_FALSE) /* internal format not supported in GL */
         return;
     }
     if (internalFormat == M3G_RGB8_32) {
@@ -454,7 +456,7 @@ static void m3gBlitFrameBufferPixels2(RenderContext *ctx,
     /* Tweak tile size to avoid using excessive amounts of memory for
      * portions outside the blit area */
 
-    M3G_ASSERT((width > 0) && (height > 0));
+    M3G_ASSERT((width > 0) && (height > 0))
     
     while (tileWidth >= width * 2) {
         tileWidth >>= 1;
@@ -509,7 +511,7 @@ static void m3gBlitFrameBufferPixels2(RenderContext *ctx,
             glTexEnvx(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            M3G_ASSERT_GL;
+            M3G_ASSERT_GL
             
             glTexImage2D(GL_TEXTURE_2D, 0,
                          glFormat,
@@ -527,7 +529,7 @@ static void m3gBlitFrameBufferPixels2(RenderContext *ctx,
                     goto CleanUpAndExit;
                 }
                 else if (err != GL_NO_ERROR) {
-                    M3G_ASSERT(M3G_FALSE);
+                    M3G_ASSERT(M3G_FALSE)
                 }
             }
         }
@@ -543,7 +545,7 @@ static void m3gBlitFrameBufferPixels2(RenderContext *ctx,
     glMatrixMode(GL_TEXTURE);
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
-    M3G_ASSERT_GL;
+    M3G_ASSERT_GL
 
     /* Load each image tile into a texture and draw */
 
@@ -609,7 +611,7 @@ static void m3gBlitFrameBufferPixels2(RenderContext *ctx,
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             }
         }
-        M3G_ASSERT_GL;
+        M3G_ASSERT_GL
     }
 
     /* Restore required OpenGL state and release resources */
@@ -621,7 +623,7 @@ CleanUpAndExit:
 
     glDeleteTextures(tempTexCount, tempTexObj);
         
-    M3G_ASSERT_GL;
+    M3G_ASSERT_GL
     
 #   undef MAX_TEMP_TEXTURES
 }
@@ -666,10 +668,10 @@ static M3Gbool m3gSplitDrawMesh(RenderContext *ctx,
 
                 /* Duplicate the normal array */
                 
-                m3gReleaseFrameBuffer(ctx);
+                m3gReleaseFrameBuffer(ctx)
                 tempNormals = m3gCloneVertexArray(vb->normals);
                 if (!tempNormals) {
-                    m3gLockFrameBuffer(ctx);
+                    m3gLockFrameBuffer(ctx)
                     return M3G_TRUE; /* automatic out-of-memory */
                 }
 
@@ -696,7 +698,7 @@ static M3Gbool m3gSplitDrawMesh(RenderContext *ctx,
                     }
                 }
                 m3gUnmapObject(m3g, tempNormals->data);
-                m3gLockFrameBuffer(ctx);
+                m3gLockFrameBuffer(ctx)
                 
                 ctx->inSplitDraw = M3G_TRUE;
 
@@ -728,9 +730,9 @@ static M3Gbool m3gSplitDrawMesh(RenderContext *ctx,
                     
                 m3gSetCulling(pm, originalCulling);
                 
-                m3gReleaseFrameBuffer(ctx);
+                m3gReleaseFrameBuffer(ctx)
                 m3gDeleteObject((M3GObject) tempNormals);
-                m3gLockFrameBuffer(ctx);
+                m3gLockFrameBuffer(ctx)
 
                 ctx->inSplitDraw = M3G_FALSE;
                 return M3G_TRUE;
@@ -824,7 +826,7 @@ static M3Gbool m3gValidateBackBuffer(RenderContext *ctx)
                 return M3G_FALSE; /* ouf of memory */
             }
             else {
-                M3G_ASSERT(M3G_FALSE);
+                M3G_ASSERT(M3G_FALSE)
             }
         }
     }
@@ -896,7 +898,7 @@ static void m3gBlitFrameBufferPixels(RenderContext *ctx,
     glLoadIdentity();
     glOrthox(0, ctx->target.width << 16,
              0, ctx->target.height << 16,
-             -1 << 16, 1 << 16);
+             -(1 << 16), 1 << 16);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
@@ -912,7 +914,7 @@ static void m3gBlitFrameBufferPixels(RenderContext *ctx,
     glDepthMask(GL_FALSE);
     glDepthFunc(GL_ALWAYS);
     m3gDisableTextures();
-    M3G_ASSERT_GL;
+    M3G_ASSERT_GL
     
     /* Split the large blit operation into smaller chunks that are
      * efficiently taken care of using power-of-two textures */
@@ -971,7 +973,7 @@ static void m3gUpdateBackBuffer(RenderContext *ctx)
                                       &src, &stride)) {
                 /* No dice! There's no way that we know of to copy the
                  * data between the buffers */
-                M3G_ASSERT(M3G_FALSE);
+                M3G_ASSERT(M3G_FALSE)
             }
         } else {
             /* Memory target */
@@ -998,7 +1000,7 @@ static void m3gUpdateBackBuffer(RenderContext *ctx)
     else {
         /* Buffered rendering is not supported for window and pbuffer
          * targets */
-        M3G_ASSERT(M3G_FALSE);
+        M3G_ASSERT(M3G_FALSE)
     }
     ctx->backBuffer.contentsValid = M3G_TRUE;
 }
@@ -1050,7 +1052,7 @@ static void m3gUpdateTargetBuffer(RenderContext *ctx)
                                       &dst, &stride)) {
                 /* No dice! There's no way that we know of to copy the
                  * data between the buffers */
-                M3G_ASSERT(M3G_FALSE);
+                M3G_ASSERT(M3G_FALSE)
             }
         } else {
             /* Memory target */
@@ -1105,7 +1107,7 @@ static void m3gUpdateTargetBuffer(RenderContext *ctx)
     else {
         /* Buffered rendering is not supported for window and pbuffer
          * targets */
-        M3G_ASSERT(M3G_FALSE);
+        M3G_ASSERT(M3G_FALSE)
     }
 }
 
@@ -1234,7 +1236,7 @@ static EGLContext m3gSelectGLContext(RenderContext *ctx,
         {
             M3Gbool ok = eglMakeCurrent(eglGetDisplay(EGL_DEFAULT_DISPLAY),
                                         surface, surface, glrc);
-            M3G_ASSERT(ok);
+            M3G_ASSERT(ok)
             if (!ok) {
                 return NULL;
             }
@@ -1267,7 +1269,7 @@ static EGLSurface m3gSelectGLSurface(RenderContext *ctx)
     /* Buffered rendering is handled elsewhere! */
     
     if (ctx->target.buffered) {
-        M3G_ASSERT(M3G_FALSE);
+        M3G_ASSERT(M3G_FALSE)
         return NULL;
     }
 
@@ -1385,7 +1387,7 @@ static void m3gDeleteGLSurfaces(RenderContext *ctx,
                                 M3Gpointer handle)
 {
     int i;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     
     for (i = 0; i < M3G_MAX_GL_SURFACES; ++i) {
         GLSurfaceRecord *surf = &ctx->glSurface[i];
@@ -1460,7 +1462,7 @@ void m3gBindBitmapTarget(M3GRenderContext hCtx,
     M3GPixelFormat format;
     M3Gint width, height, pixels;
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     
     M3G_LOG1(M3G_LOG_RENDERING, "Binding bitmap 0x%08X\n", (unsigned) hBitmap);
     
@@ -1478,8 +1480,8 @@ void m3gBindBitmapTarget(M3GRenderContext hCtx,
     }
 
     /* Set the bitmap target specific parameters */
-    
-    ctx->target.pixels = (void*)pixels;
+
+    ctx->target.pixels = (void*)(uintptr_t)pixels;
 
 }
 
@@ -1494,12 +1496,12 @@ M3G_API void m3gBindEGLSurfaceTarget(M3GRenderContext context,
 {
     RenderContext *ctx = (RenderContext*) context;
     Interface *m3g = M3G_INTERFACE(ctx);
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_LOG1(M3G_LOG_RENDERING, "Binding EGL surface 0x%08X\n", (unsigned) surface);
     {
         EGLDisplay dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        EGLSurface surf = (EGLSurface) surface;
+        EGLSurface surf = (EGLSurface)(uintptr_t) surface;
         M3Gint width, height;
         
         if (!(eglQuerySurface(dpy, surf, EGL_WIDTH, &width) &&
@@ -1546,10 +1548,10 @@ void m3gBindMemoryTarget(M3GRenderContext context,
 {
     RenderContext *ctx = (RenderContext*) context;
     Interface *m3g = M3G_INTERFACE(ctx);
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_LOG1(M3G_LOG_RENDERING, "Binding memory buffer 0x%08X\n",
-             (unsigned) pixels);
+             (uintptr_t) pixels);
     
     /* Check for bitmap specific errors */
     
@@ -1583,7 +1585,7 @@ M3G_API void m3gBindWindowTarget(M3GRenderContext hCtx,
     M3GPixelFormat format;
     M3Gint width, height;
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
     
     M3G_LOG1(M3G_LOG_RENDERING, "Binding window 0x%08X\n", (unsigned) hWindow);
     
@@ -1618,7 +1620,7 @@ M3G_API void m3gInvalidateBitmapTarget(M3GRenderContext hCtx,
                                        M3GNativeBitmap hBitmap)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_LOG1(M3G_LOG_RENDERING, "Invalidating bitmap 0x%08X\n",
              (unsigned) hBitmap);
@@ -1641,7 +1643,7 @@ M3G_API void m3gInvalidateWindowTarget(M3GRenderContext hCtx,
                                        M3GNativeWindow hWindow)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_LOG1(M3G_LOG_RENDERING, "Invalidating window 0x%08X\n",
              (unsigned) hWindow);
@@ -1662,10 +1664,10 @@ M3G_API void m3gInvalidateMemoryTarget(M3GRenderContext hCtx,
                                        void *pixels)
 {
     RenderContext *ctx = (RenderContext *) hCtx;
-    M3G_VALIDATE_OBJECT(ctx);
+    M3G_VALIDATE_OBJECT(ctx)
 
     M3G_LOG1(M3G_LOG_RENDERING, "Invalidating memory target 0x%08X\n",
-             (unsigned) pixels);
+             (uintptr_t) pixels);
     
     m3gDeleteGLSurfaces(ctx, (M3Gbitmask) SURFACE_MEMORY, (M3Gpointer) pixels);
 }

@@ -75,7 +75,7 @@ static void m3gDestroyImage(Object *obj)
 
 #   if !defined(M3G_NGL_TEXTURE_API)
     if (image->texObject) {
-        m3gDeleteGLTextures(m3g, 1, &image->texObject);
+        m3gDeleteGLTextures(m3g, 1, (M3Gpointer *) &image->texObject);
     }
     if (image->large != NULL) {
         m3gDestroyLargeImage(image);
@@ -1058,8 +1058,8 @@ static void m3gFreeImageData(Image *img)
     M3G_ASSERT(img->powerOfTwo != NULL);
     M3G_ASSERT(!img->pinned);
     
-    M3G_LOG1(M3G_LOG_IMAGES, "Freeing copy of image 0x%08X\n",
-             (unsigned) img);
+    M3G_LOG1(M3G_LOG_IMAGES, "Freeing copy of image 0x%08\n" PRIxPTR,
+             (uintptr_t) img);
 
     if (!img->copyOf) {
         m3gFreeObject(M3G_INTERFACE(img), img->data);
@@ -1279,8 +1279,8 @@ M3G_API M3GImage m3gCreateImage(/*@dependent@*/ M3GInterface interface,
 
         /* Clean up and set flags */
 
-        M3G_LOG3(M3G_LOG_IMAGES, "Image 0x%08X is %d x %d",
-                 (unsigned) img, width, height);
+        M3G_LOG3(M3G_LOG_IMAGES, "Image 0x%08 is %d x %d" PRIxPTR,
+                 (uintptr_t) img, width, height);
         
         flags |= M3G_DYNAMIC;   /* the default */
         
@@ -1426,8 +1426,8 @@ M3G_API void m3gCommitImage(M3GImage hImage)
         image->pinned = M3G_FALSE;
     }
 #endif    
-    M3G_LOG1(M3G_LOG_IMAGES, "Image 0x%08X made immutable\n",
-             (unsigned) image);
+    M3G_LOG1(M3G_LOG_IMAGES, "Image 0x%08 made immutable\n" PRIxPTR,
+             (uintptr_t) image);
 }
 
 /*!

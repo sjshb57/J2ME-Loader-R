@@ -43,7 +43,7 @@ static void m3gDestroyMesh(Object *obj)
 {
     M3Gint i;
     Mesh *mesh = (Mesh *) obj;
-    M3G_VALIDATE_OBJECT(mesh);
+    M3G_VALIDATE_OBJECT(mesh)
 
     for (i = 0; i < mesh->trianglePatchCount; ++i) {
         M3G_ASSIGN_REF(mesh->indexBuffers[i], NULL);
@@ -79,7 +79,7 @@ static M3Gbool m3gQueueMesh(Mesh *mesh, const Matrix *toCamera,
     /* Insert each submesh into the rendering queue */
             
     for (i = 0; i < mesh->trianglePatchCount; i++) {
-        if (mesh->appearances[i] != NULL) {
+        if ((void *) mesh->appearances[i] != NULL) {
             if (!m3gInsertDrawable(M3G_INTERFACE(mesh),
                                    renderQueue,
                                    (Node*) mesh,
@@ -257,8 +257,8 @@ static M3Gbool m3gMeshRayIntersectInternal(	Mesh *mesh,
     /* Go through all submeshes */
     for (i = 0; i < mesh->trianglePatchCount; i++) {
         /* Do not pick submeshes with null appearance */
-        if (mesh->appearances[i] == NULL ||
-            mesh->indexBuffers[i] == NULL) continue;
+        if ((void *) mesh->appearances[i] == NULL ||
+            (void *) mesh->indexBuffers[i] == NULL) continue;
 
         /* Validate indices versus vertex buffer */
         if (m3gGetMaxIndex((const IndexBuffer *) mesh->indexBuffers[i]) >= m3gGetNumVertices(vertices)) {
@@ -427,7 +427,7 @@ static M3Gbool m3gInitMesh(Interface *m3g,
     }
 
 	for (i = 0; i < trianglePatchCount; i++) {
-		if (hTriangles[i] == NULL) {
+		if ((void *) hTriangles[i] == NULL) {
 			m3gRaiseError(m3g, M3G_NULL_POINTER);
             return M3G_FALSE;
 		}
@@ -488,12 +488,12 @@ static M3Gint m3gMeshDoGetReferences(Object *self, M3Gulong *references)
         references[num] = (M3Gulong)mesh->vertexBuffer;
     num++;
     for (i = 0; i < mesh->trianglePatchCount; i++) {
-        if (mesh->indexBuffers[i] != NULL) {
+        if ((void *) mesh->indexBuffers[i] != NULL) {
             if (references != NULL)
                 references[num] = (M3Gulong)mesh->indexBuffers[i];
             num++;
         }
-        if (mesh->appearances[i] != NULL) {
+        if ((void *) mesh->appearances[i] != NULL) {
             if (references != NULL)
                 references[num] = (M3Gulong)mesh->appearances[i];
             num++;
@@ -516,10 +516,10 @@ static Object *m3gMeshFindID(Object *self, M3Gint userID)
         found = m3gFindID((Object*) mesh->vertexBuffer, userID);
     }    
     for (i = 0; !found && i < mesh->trianglePatchCount; ++i) {
-        if (mesh->indexBuffers[i] != NULL) {
+        if ((void *) mesh->indexBuffers[i] != NULL) {
             found = m3gFindID((Object*) mesh->indexBuffers[i], userID);
         }
-        if (!found && mesh->appearances[i] != NULL) {
+        if (!found && (void *) mesh->appearances[i] != NULL) {
             found = m3gFindID((Object*) mesh->appearances[i], userID);
         }
     }
@@ -573,7 +573,7 @@ static M3Gint m3gMeshApplyAnimation(Object *self, M3Gint time)
     M3Gint validity, minValidity;
     Mesh *mesh = (Mesh *)self;
     Object *vb;
-    M3G_VALIDATE_OBJECT(mesh);
+    M3G_VALIDATE_OBJECT(mesh)
 
     minValidity = m3gObjectApplyAnimation(self, time);
 
@@ -726,7 +726,7 @@ M3G_API M3GMesh m3gCreateMesh(M3GInterface interface,
                               M3Gint trianglePatchCount)
 {
     Interface *m3g = (Interface *) interface;
-    M3G_VALIDATE_INTERFACE(m3g);
+    M3G_VALIDATE_INTERFACE(m3g)
 
 	{
 		Mesh *mesh = m3gAllocZ(m3g, sizeof(Mesh));
@@ -757,7 +757,7 @@ M3G_API void m3gSetAppearance(M3GMesh handle,
                               M3GAppearance hAppearance)
 {
 	Mesh *mesh = (Mesh *)handle;
-    M3G_VALIDATE_OBJECT(mesh);
+    M3G_VALIDATE_OBJECT(mesh)
 	
 	if (appearanceIndex < 0 || appearanceIndex >= mesh->trianglePatchCount) {
 		m3gRaiseError(M3G_INTERFACE(mesh), M3G_INVALID_INDEX);
@@ -778,7 +778,7 @@ M3G_API M3GAppearance m3gGetAppearance(M3GMesh handle,
                                        M3Gint idx)
 {
 	Mesh *mesh = (Mesh *)handle;
-    M3G_VALIDATE_OBJECT(mesh);
+    M3G_VALIDATE_OBJECT(mesh)
 	
 	if (idx < 0 || idx >= mesh->trianglePatchCount) {
 		m3gRaiseError(M3G_INTERFACE(mesh), M3G_INVALID_INDEX);
@@ -799,7 +799,7 @@ M3G_API M3GIndexBuffer m3gGetIndexBuffer(M3GMesh handle,
                                          M3Gint idx)
 {
 	Mesh *mesh = (Mesh *)handle;
-    M3G_VALIDATE_OBJECT(mesh);
+    M3G_VALIDATE_OBJECT(mesh)
 	
 	if (idx < 0 || idx >= mesh->trianglePatchCount) {
 		m3gRaiseError(M3G_INTERFACE(mesh), M3G_INVALID_INDEX);
@@ -818,7 +818,7 @@ M3G_API M3GIndexBuffer m3gGetIndexBuffer(M3GMesh handle,
 M3G_API M3GVertexBuffer m3gGetVertexBuffer(M3GMesh handle)
 {
 	Mesh *mesh = (Mesh *)handle;
-    M3G_VALIDATE_OBJECT(mesh);
+    M3G_VALIDATE_OBJECT(mesh)
 
     return mesh->vertexBuffer;
 }
@@ -832,7 +832,7 @@ M3G_API M3GVertexBuffer m3gGetVertexBuffer(M3GMesh handle)
 M3G_API M3Gint m3gGetSubmeshCount(M3GMesh handle)
 {
 	Mesh *mesh = (Mesh *)handle;
-    M3G_VALIDATE_OBJECT(mesh);
+    M3G_VALIDATE_OBJECT(mesh)
 
     return mesh->trianglePatchCount;
 }

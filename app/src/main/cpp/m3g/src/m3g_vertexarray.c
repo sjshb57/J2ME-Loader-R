@@ -649,6 +649,16 @@ M3G_API M3GVertexArray m3gCreateVertexArray(M3GInterface interface,
         case M3G_SHORT:
             array->stride = size * sizeof(M3Gshort);
             break;
+            case M3G_UBYTE:
+                break;
+            case M3G_USHORT:
+                break;
+            case M3G_INT:
+                break;
+            case M3G_UINT:
+                break;
+            case M3G_FLOAT:
+                break;
         }
 
         /* Alloc and initialize all values to zero */

@@ -73,8 +73,8 @@ struct TCacheImpl
 
 static M3G_INLINE M3Gint m3gTransformableHash(const Transformable *t)
 {
-    M3Guint a = (M3Guint) t;
-    M3Guint b = (M3Guint) t;
+    M3Guint a = (uintptr_t) t;
+    M3Guint b = (uintptr_t) t;
     
     a += (a >> 3) + (a >> 9) + (a >> 17);
     b  = (b >> 16) | (b << 16);
@@ -84,8 +84,8 @@ static M3G_INLINE M3Gint m3gTransformableHash(const Transformable *t)
 
 static M3Gint m3gPathHash(const Node *from, const Node *to)
 {
-    M3Guint a = (M3Guint) from;
-    M3Guint b = (M3Guint) to;
+    M3Guint a = (uintptr_t) from;
+    M3Guint b = (uintptr_t) to;
 
     a += (a >> 3) + (a >> 9) + (a >> 17);
     b  = (b >> 16) | (b << 16);

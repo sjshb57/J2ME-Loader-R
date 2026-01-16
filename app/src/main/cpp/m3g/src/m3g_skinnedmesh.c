@@ -1622,7 +1622,7 @@ static M3Gint m3gSkinnedMeshGetBBox(Node *self, AABB *bbox)
             int i;
             
             for (i = 0; i < 3; ++i) {
-                mesh->bbox.min[i] = m3gMadd(scale, -1 << 15, bias[i]);
+                mesh->bbox.min[i] = m3gMadd(scale, -(1 << 15), bias[i]);
                 mesh->bbox.max[i] = m3gMadd(scale, (1 << 15) - 1, bias[i]);
             }
         }
